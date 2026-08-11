@@ -2,6 +2,9 @@
 
 微信公众号文章全流程写作助手 - OpenClaw Skill
 
+[![GitHub stars](https://img.shields.io/github/stars/mxx1111/wechat-mp-writer-skill-mxx?style=flat-square)](https://github.com/mxx1111/wechat-mp-writer-skill-mxx/stargazers)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
+
 ## 功能介绍
 
 这是一个专为微信公众号运营者设计的 OpenClaw 技能，提供从选题到发布的一站式文章创作辅助。
@@ -19,7 +22,7 @@
 ### 方法一：通过 ClawHub 安装（推荐）
 
 ```bash
-openclaw skill install github:muxiongxiong/wechat-mp-writer-skill-mxx
+openclaw skill install github:mxx1111/wechat-mp-writer-skill-mxx
 ```
 
 ### 方法二：手动安装
@@ -27,7 +30,7 @@ openclaw skill install github:muxiongxiong/wechat-mp-writer-skill-mxx
 1. 克隆仓库到本地
 ```bash
 cd ~/.openclaw/skills
-git clone https://github.com/muxiongxiong/wechat-mp-writer-skill-mxx.git wechat-mp-writer
+git clone https://github.com/mxx1111/wechat-mp-writer-skill-mxx.git wechat-mp-writer
 ```
 
 2. 重启 OpenClaw 或重新加载技能
@@ -64,11 +67,10 @@ MIT License - 详见 [LICENSE](LICENSE) 文件
 
 ## 作者
 
-穆雄雄 (muxiongxiong)
+穆雄雄（GitHub: [@mxx1111](https://github.com/mxx1111)）
 
 - 博客：https://blog.csdn.net/qq_34137397
 - 公众号：雄雄的小课堂
-- 个人网站：https://www.muxiongxiong.cn
 
 ## 更新日志
 
