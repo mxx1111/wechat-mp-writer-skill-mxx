@@ -1,79 +1,136 @@
-# wechat-mp-writer-skill-mxx
+# wechat-mp-writer
 
-微信公众号文章全流程写作助手 - OpenClaw Skill
+**把一篇稿子从选题带到可以安全发出去。** 负责流程编排和公众号平台特有的硬约束，写作和润色委托给专门的 skill。
 
 [![GitHub stars](https://img.shields.io/github/stars/mxx1111/wechat-mp-writer-skill-mxx?style=flat-square)](https://github.com/mxx1111/wechat-mp-writer-skill-mxx/stargazers)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
 
-## 功能介绍
+## 它解决什么问题
 
-这是一个专为微信公众号运营者设计的 OpenClaw 技能，提供从选题到发布的一站式文章创作辅助。
+写公众号真正会翻车的地方，多半不在文笔上：
 
-### 核心功能
+- **正文里的外部链接不可点击**，读者只能手抄。从博客直接搬运的稿子几乎必踩这一条
+- 标题超长，在列表页和分享卡片被截断
+- 摘要留空，微信自动截取正文开头，从第一句话硬切
+- 代码块超宽，手机上只能横向滚动
+- **群发后不能修改**，只能删除重发，重发会丢掉已有的阅读量和在看
 
-1. **热点选题建议** - 根据领域/关键词搜索最新热点，提供选题角度
-2. **文章撰写** - 支持技术干货、故事叙事、观点评论等多种风格
-3. **AI 去味润色** - 去除 AI 写作痕迹，让文章读起来像真人写的
-4. **配图建议** - 推荐配图类型，提供封面图设计建议
-5. **一键发布** - 生成符合微信格式的 Markdown，可发布到公众号草稿箱
+这些都是机器能查出来的，而且必须在发布**之前**查。本项目就做这件事。
 
-## 安装方法
+## 不做什么
 
-### 方法一：通过 ClawHub 安装（推荐）
+不做通用的写作和去 AI 味。这两件事已经有更专门的方案，在这里重造一遍只会更弱：
+
+| 用途 | 建议使用 |
+| --- | --- |
+| 通用中文创作与改稿 | `human-writing` |
+| 中文 / 英文 AI 痕迹 | `humanizer-zh` / `humanizer` |
+| 自媒体风格化润色 | `polish-zimeiti` |
+
+本项目负责的是它们都不管的那一层：**平台约束和发布前体检**。
+
+## 发布前体检
+
+```bash
+python3 scripts/check_mp.py article.md --title "标题" --digest "摘要"
+```
+
+```
+✗ [heading]    第 6 行：正文里出现 H1。文章标题在公众号后台单独填，正文小标题从 ## 起。
+✗ [link]       第 8 行：正文里有 2 处外部链接。公众号正文的链接不可点击，读者只能手抄。
+✗ [code-width] 第 11 行：代码行显示宽度 90，超过 60，手机端只能横向滚动。断行或改用截图。
+! [title]      整篇：标题 38 字，手机列表页大概率折行。20 字以内更稳。
+! [image-alt]  第 14 行：图片没有 alt。
+
+3 个错误，2 个提示
+```
+
+只用 Python 标准库，不需要安装任何依赖。有 error 退出码为 1，可以直接进 CI。
+
+标题和摘要也可以写在 Markdown 顶部的 front matter：
+
+```markdown
+---
+title: 标题写在这
+digest: 摘要写在这
+---
+```
+
+**数值限制不写死在代码里。** 全部集中在 [`references/platform-limits.json`](references/platform-limits.json)，每项带 `lastVerified` 和来源。微信的限制会变，改配置就行；拿不准的项目 `enforce` 设为 `false`，只提示不报错——宁可少管，也不要用一个过期的数字去卡人。
+
+## 流水线
+
+```
+素材 ──▶ 选题 ──▶ 起草 ──▶ 润色（委托）──▶ 配图 ──▶ 体检 ──▶ 排版 ──▶ 发布
+```
+
+四种入口：从零写一篇、已有草稿要发、只做体检、只问平台规则。用户说「帮我检查一下这篇」就只做体检，不会顺手把文章重写了。
+
+## 内容
+
+| 文件 | 内容 |
+| --- | --- |
+| [`SKILL.md`](SKILL.md) | 流程编排 |
+| [`scripts/check_mp.py`](scripts/check_mp.py) | 发布前体检 |
+| [`references/wechat-platform.md`](references/wechat-platform.md) | 平台硬约束：链接、标题、封面裁剪、代码块、发布节奏、原创声明 |
+| [`references/platform-limits.json`](references/platform-limits.json) | 数值限制，带核对日期 |
+| [`references/image-guide.md`](references/image-guide.md) | 配图尺寸、类型选择、免费素材、AI 提示词 |
+| [`references/humanize-guide.md`](references/humanize-guide.md) | 去 AI 味的**反面清单**，以及公众号特有的部分 |
+
+那份去味指南值得单独说一句：它主要在讲**别做什么**。网络流行语（yyds、真香、蚌埠住了）、「（笑）」这类括号补充、刻意重复、密集的「说实话／讲真」——这些早期的去 AI 味技巧现在已经被模型学得太熟，成了新一代的 AI 味，用了反而更容易被认出来。
+
+## 安装
+
+Claude Code：
+
+```bash
+git clone https://github.com/mxx1111/wechat-mp-writer-skill-mxx.git ~/.claude/skills/wechat-mp-writer
+```
+
+OpenClaw：
 
 ```bash
 openclaw skill install github:mxx1111/wechat-mp-writer-skill-mxx
 ```
 
-### 方法二：手动安装
+或手动：
 
-1. 克隆仓库到本地
 ```bash
-cd ~/.openclaw/skills
-git clone https://github.com/mxx1111/wechat-mp-writer-skill-mxx.git wechat-mp-writer
+git clone https://github.com/mxx1111/wechat-mp-writer-skill-mxx.git ~/.openclaw/skills/wechat-mp-writer
 ```
 
-2. 重启 OpenClaw 或重新加载技能
+体检脚本也可以脱离 skill 单独用，只要有 Python 3。
 
-## 使用方法
+## 配套工具
 
-安装完成后，在 OpenClaw 中直接告诉助手你想写什么类型的公众号文章即可。
+流水线里另外两环，同作者的独立项目：
 
-示例：
-- "帮我写一篇关于微服务架构的技术文章"
-- "给我一些 Java 领域的热点选题建议"
-- "润色一下我这段草稿，让它读起来更自然"
-
-## 文件结构
-
-```
-wechat-mp-writer-skill-mxx/
-├── SKILL.md                      # 主技能文件
-├── references/
-│   ├── image-guide.md           # 公众号配图指南
-│   └── humanize-guide.md        # AI 去味润色指南
-├── README.md                     # 本文件
-└── LICENSE                       # 开源协议
-```
-
-## 依赖
-
-- OpenClaw >= 1.0
-- 可选：wechat-mp-publisher skill（用于一键发布到公众号）
-
-## 开源协议
-
-MIT License - 详见 [LICENSE](LICENSE) 文件
+- **[mdlook](https://github.com/mxx1111/mdlook)** —— Markdown 排版 + 公众号复制，Mac 本地工具（基于 doocs/md 演进）。Markdown 不能直接粘进公众号编辑器，这一步用它
+- **[file2md](https://github.com/mxx1111/file2md)** —— PDF / Word / Excel / HTML 转 Markdown，纯前端处理，文件不上传。把政策文件、报告转成写作素材
 
 ## 作者
 
-穆雄雄（GitHub: [@mxx1111](https://github.com/mxx1111)）
+穆雄雄
 
-- 博客：https://blog.csdn.net/qq_34137397
-- 公众号：雄雄的小课堂
+- 公众号：雄雄的小课堂 / 长护视点
+- 开源主页：[mxx1111.github.io](https://mxx1111.github.io)
+- 其他项目：[clinical-ai-safety-kit](https://github.com/mxx1111/clinical-ai-safety-kit)（医疗 AI 安全评测）、[Homelab](https://github.com/mxx1111/Homelab)（自托管运维面板）
 
 ## 更新日志
 
-### v1.0.0 (2026-02-21)
-- 初始版本发布
-- 支持热点选题、文章撰写、AI 去味润色、配图建议功能
+### v2.0.0
+
+- 定位改为发布流水线的平台层。写作和去 AI 味委托给专门的 skill，不再自己实现一套弱的
+- 新增 `scripts/check_mp.py` 发布前体检，纯标准库
+- 新增 `references/wechat-platform.md` 平台硬约束
+- 新增 `references/platform-limits.json`，数值限制集中管理并标注核对日期
+- 重写去味指南为反面清单，删掉网络流行语、括号补充、刻意重复等已失效的建议
+- 补充 Claude Code 安装路径
+
+### v1.0.0
+
+- 初始版本：热点选题、文章撰写、AI 去味润色、配图建议
+
+## 开源协议
+
+MIT
