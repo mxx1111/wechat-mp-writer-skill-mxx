@@ -1,0 +1,55 @@
+{
+  "id": "tech-deepdive",
+  "name": "技术干货",
+  "description": "白底无衬线，深色代码块，克制的蓝色强调。为代码密集的长文调过：代码字号偏小、行距偏紧，尽量让一行命令在手机上不折行。",
+  "bestFor": ["技术教程", "源码分析", "架构设计", "踩坑记录", "工具测评"],
+  "palette": {
+    "paper": "#FFFFFF",
+    "ink": "#1F2328",
+    "accent": "#1F6FEB",
+    "muted": "#656D76",
+    "codeBg": "#1E2430",
+    "rule": "#E4E7EB"
+  },
+  "notes": [
+    "代码块 13px、行距 1.6，比正文紧。公众号正文宽度固定，代码再大就必然横向滚动。",
+    "强调蓝 #1F6FEB 在白底上对比度约 5.4:1，过 WCAG AA 正文标准。",
+    "代码块用深色底：一是和正文区分明显，二是读者截图转发时观感更好。"
+  ],
+  "styles": {
+    "body": "background:#FFFFFF;color:#1F2328;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;font-size:16px;line-height:1.8;letter-spacing:.3px;padding:24px 18px;",
+
+    "h2": "margin:36px 0 16px;padding-bottom:10px;border-bottom:2px solid #E4E7EB;color:#1F2328;font-size:20px;font-weight:600;line-height:1.4;",
+    "h3": "margin:26px 0 12px;color:#1F6FEB;font-size:17px;font-weight:600;line-height:1.5;",
+    "h4": "margin:20px 0 10px;color:#656D76;font-size:15px;font-weight:600;line-height:1.5;",
+
+    "p": "margin:0 0 18px;font-size:16px;line-height:1.8;color:#1F2328;",
+    "strong": "font-weight:600;color:#1F2328;background:linear-gradient(180deg,transparent 62%,#CFE3FF 62%);",
+    "em": "font-style:italic;color:#656D76;",
+
+    "code_inline": "font-family:'SF Mono',Menlo,Consolas,monospace;font-size:14px;background:#F2F4F7;color:#B5372B;padding:2px 6px;border-radius:3px;",
+    "code_block": "margin:0 0 20px;padding:14px 16px;background:#1E2430;border-radius:6px;overflow-x:auto;",
+    "code_block_text": "font-family:'SF Mono',Menlo,Consolas,monospace;font-size:13px;line-height:1.6;color:#D7DEE9;white-space:pre;",
+
+    "blockquote": "margin:0 0 20px;padding:12px 16px;background:#F6F8FA;border-left:3px solid #1F6FEB;border-radius:0 4px 4px 0;",
+    "blockquote_text": "margin:0;font-size:15px;line-height:1.75;color:#656D76;",
+
+    "ul": "margin:0 0 18px;padding-left:20px;",
+    "ol": "margin:0 0 18px;padding-left:20px;",
+    "li": "margin:0 0 8px;font-size:16px;line-height:1.75;color:#1F2328;",
+
+    "table": "width:100%;margin:0 0 22px;border-collapse:collapse;font-size:14px;",
+    "tr": "",
+    "th": "padding:9px 12px;background:#F2F4F7;color:#1F2328;font-weight:600;text-align:left;border:1px solid #E4E7EB;",
+    "td": "padding:9px 12px;border:1px solid #E4E7EB;color:#1F2328;line-height:1.7;",
+
+    "hr": "margin:30px 0;border:0;border-top:1px solid #E4E7EB;",
+
+    "img": "max-width:100%;height:auto;display:block;margin:0 auto;border-radius:4px;",
+    "figure": "margin:0 0 22px;",
+    "figcaption": "display:block;margin-top:8px;text-align:center;font-size:13px;color:#656D76;",
+
+    "link": "color:#1F6FEB;font-weight:600;",
+    "link_url": "color:#8C949E;font-size:13px;"
+  }
+}

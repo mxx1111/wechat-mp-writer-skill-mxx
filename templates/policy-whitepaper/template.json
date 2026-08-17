@@ -1,0 +1,55 @@
+{
+  "id": "policy-whitepaper",
+  "name": "政策解读·白皮书",
+  "description": "米白纸面、深红与金、宋体正文。适合政策解读、调研报告、机关单位汇报这类需要庄重感的长文。市面上的公众号模版几乎全是渐变加圆角的互联网风，这一类基本是空白。",
+  "bestFor": ["政策解读", "调研报告", "医保与社保", "机关单位汇报", "行业白皮书"],
+  "palette": {
+    "paper": "#FBF8F2",
+    "ink": "#2B2B2B",
+    "accent": "#8C1F28",
+    "gold": "#B8964F",
+    "muted": "#6B6259",
+    "rule": "#E0D8C8"
+  },
+  "notes": [
+    "宋体在 iOS 上走 Songti SC，安卓多数机型没有对应字体会退到系统衬线或默认字体，这是公众号的通病，无解，只能保证退化后仍然可读。",
+    "深红 #8C1F28 在米白 #FBF8F2 上的对比度约 8.6:1，正文与标题都过 WCAG AA。",
+    "小标题用金色竖线加深红文字，不用背景块——背景块在深色模式下容易糊成一片。"
+  ],
+  "styles": {
+    "body": "background:#FBF8F2;color:#2B2B2B;font-family:'Songti SC','Source Han Serif SC','Noto Serif CJK SC','SimSun',serif;font-size:16px;line-height:1.9;letter-spacing:.4px;padding:28px 20px;text-align:justify;",
+
+    "h2": "margin:38px 0 18px;padding-left:12px;border-left:4px solid #B8964F;color:#8C1F28;font-size:20px;font-weight:700;line-height:1.5;letter-spacing:1px;",
+    "h3": "margin:28px 0 14px;color:#8C1F28;font-size:17px;font-weight:700;line-height:1.6;letter-spacing:.6px;",
+    "h4": "margin:22px 0 12px;color:#6B6259;font-size:16px;font-weight:700;line-height:1.6;",
+
+    "p": "margin:0 0 20px;font-size:16px;line-height:1.9;color:#2B2B2B;",
+    "strong": "font-weight:700;color:#8C1F28;",
+    "em": "font-style:normal;color:#6B6259;border-bottom:1px solid #E0D8C8;padding-bottom:1px;",
+
+    "code_inline": "font-family:Menlo,Consolas,monospace;font-size:14px;background:#F1EADB;color:#8C1F28;padding:2px 6px;border-radius:2px;",
+    "code_block": "margin:0 0 22px;padding:16px;background:#F5F0E4;border-left:3px solid #B8964F;overflow-x:auto;",
+    "code_block_text": "font-family:Menlo,Consolas,monospace;font-size:13px;line-height:1.75;color:#3A342C;white-space:pre;",
+
+    "blockquote": "margin:0 0 22px;padding:14px 18px;background:#F5F0E4;border-left:3px solid #8C1F28;",
+    "blockquote_text": "margin:0;font-size:15px;line-height:1.85;color:#6B6259;",
+
+    "ul": "margin:0 0 20px;padding-left:22px;",
+    "ol": "margin:0 0 20px;padding-left:22px;",
+    "li": "margin:0 0 10px;font-size:16px;line-height:1.85;color:#2B2B2B;",
+
+    "table": "width:100%;margin:0 0 24px;border-collapse:collapse;font-size:14px;",
+    "tr": "",
+    "th": "padding:10px 12px;background:#8C1F28;color:#FBF8F2;font-weight:700;text-align:left;border:1px solid #8C1F28;",
+    "td": "padding:10px 12px;border:1px solid #E0D8C8;color:#2B2B2B;line-height:1.7;",
+
+    "hr": "margin:34px auto;width:60%;border:0;border-top:1px solid #E0D8C8;",
+
+    "img": "max-width:100%;height:auto;display:block;margin:0 auto;",
+    "figure": "margin:0 0 24px;",
+    "figcaption": "display:block;margin-top:10px;text-align:center;font-size:13px;color:#6B6259;letter-spacing:.5px;",
+
+    "link": "color:#8C1F28;font-weight:700;",
+    "link_url": "color:#9A9086;font-size:13px;"
+  }
+}

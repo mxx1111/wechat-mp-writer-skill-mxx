@@ -1,9 +1,28 @@
 # wechat-mp-writer
 
-**把一篇稿子从选题带到可以安全发出去。** 负责流程编排和公众号平台特有的硬约束，写作和润色委托给专门的 skill。
+**公众号排版模版 + 发布前体检。** 把 Markdown 编译成可直接粘进公众号编辑器的 HTML，并在发那一下之前把会翻车的地方查出来。
 
 [![GitHub stars](https://img.shields.io/github/stars/mxx1111/wechat-mp-writer-skill-mxx?style=flat-square)](https://github.com/mxx1111/wechat-mp-writer-skill-mxx/stargazers)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
+
+## 模版
+
+| 政策解读·白皮书 | 技术干货 |
+| --- | --- |
+| <img src="templates/policy-whitepaper/preview.png" width="380"> | <img src="templates/tech-deepdive/preview.png" width="380"> |
+| 米白纸面、深红与金、宋体正文。政策解读、调研报告、医保社保、机关单位汇报 | 白底无衬线、深色代码块。技术教程、源码分析、架构设计、踩坑记录 |
+
+```bash
+python3 scripts/apply_template.py article.md -t policy-whitepaper -o out.html
+```
+
+浏览器打开，全选复制，粘进公众号编辑器。
+
+**为什么不能用普通的 Markdown 转 HTML**：公众号编辑器会剥掉 `<style>` 标签和所有 `class`，只保留元素上的 `style="..."`。所以样式必须在生成时逐个标签编译进去，外链 CSS 和 class 选择器一律无效。
+
+市面上的公众号模版基本都是渐变加圆角的互联网风。**政策解读、医保、机关材料这一类是空白**，第一个模版就是补这个。
+
+加模版的方法见 [`templates/README.md`](templates/README.md)，一个目录加一个 `template.json` 就行。
 
 ## 它解决什么问题
 
@@ -71,6 +90,8 @@ digest: 摘要写在这
 | 文件 | 内容 |
 | --- | --- |
 | [`SKILL.md`](SKILL.md) | 流程编排 |
+| [`templates/`](templates/) | 排版模版，以及怎么加新模版 |
+| [`scripts/apply_template.py`](scripts/apply_template.py) | Markdown + 模版 → 内联样式 HTML |
 | [`scripts/check_mp.py`](scripts/check_mp.py) | 发布前体检 |
 | [`references/wechat-platform.md`](references/wechat-platform.md) | 平台硬约束：链接、标题、封面裁剪、代码块、发布节奏、原创声明 |
 | [`references/platform-limits.json`](references/platform-limits.json) | 数值限制，带核对日期 |
@@ -105,7 +126,7 @@ git clone https://github.com/mxx1111/wechat-mp-writer-skill-mxx.git ~/.openclaw/
 
 流水线里另外两环，同作者的独立项目：
 
-- **[mdlook](https://github.com/mxx1111/mdlook)** —— Markdown 排版 + 公众号复制，Mac 本地工具（基于 doocs/md 演进）。Markdown 不能直接粘进公众号编辑器，这一步用它
+- **[mdlook](https://github.com/mxx1111/mdlook)** —— Mac 本地的 Markdown 排版与公众号复制工具（基于 doocs/md 演进），主题更多，适合不想装 Python 的场景
 - **[file2md](https://github.com/mxx1111/file2md)** —— PDF / Word / Excel / HTML 转 Markdown，纯前端处理，文件不上传。把政策文件、报告转成写作素材
 
 ## 作者
@@ -120,6 +141,8 @@ git clone https://github.com/mxx1111/wechat-mp-writer-skill-mxx.git ~/.openclaw/
 
 ### v2.0.0
 
+- 新增排版模版库：`policy-whitepaper`（政策解读白皮书风）、`tech-deepdive`（技术干货），
+  以及 `apply_template.py`——把 Markdown 编译成带内联样式的 HTML，绕开公众号剥离 style 标签的限制
 - 定位改为发布流水线的平台层。写作和去 AI 味委托给专门的 skill，不再自己实现一套弱的
 - 新增 `scripts/check_mp.py` 发布前体检，纯标准库
 - 新增 `references/wechat-platform.md` 平台硬约束

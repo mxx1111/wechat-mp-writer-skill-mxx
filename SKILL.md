@@ -1,6 +1,6 @@
 ---
 name: wechat-mp-writer
-description: 微信公众号发布流水线：把一篇稿子从选题带到可以安全发出去。负责流程编排和公众号平台特有的硬约束——标题与摘要长度、正文外链不可点、代码块超宽、封面裁剪、发布后不可修改——并用 check_mp.py 做发布前体检。写作和润色本身委托给专门的 skill，不重复造。当用户要写公众号文章、要把已有稿子转成公众号能发的形态、要做发布前检查，或问公众号平台限制时使用。
+description: 微信公众号发布流水线与排版模版库。提供可直接套用的公众号排版模版（政策解读白皮书风、技术干货等），把 Markdown 编译成带内联样式、可直接粘进公众号编辑器的 HTML；并负责平台特有的硬约束——标题与摘要长度、正文外链不可点、代码块超宽、封面裁剪、发布后不可修改——用 check_mp.py 做发布前体检。写作和润色委托给专门的 skill，不重复造。当用户要排版公众号文章、要模版、要写公众号、要把已有稿子转成公众号能发的形态、要做发布前检查，或问公众号平台限制时使用。
 ---
 
 # 公众号发布流水线
@@ -100,12 +100,32 @@ digest: 摘要写在这
 
 真正有效的只有一件事：**文章里有别人给不出的具体信息**。没有的话，改多少句式都没用；材料不够就去查、去问，或者把文章写短。
 
-## 排版与发布
+## 排版：套模版
 
-Markdown 不能直接粘进公众号编辑器，需要先转成带内联样式的富文本。
+Markdown 不能直接粘进公众号编辑器。公众号会剥掉 `<style>` 标签和所有 class，**只认元素上的内联 style**，所以样式必须在生成时编译进每一个标签。
 
-- 排版：[mdlook](https://github.com/mxx1111/mdlook) —— Markdown 排版 + 公众号复制，Mac 本地工具
+```bash
+python3 scripts/apply_template.py --list
+python3 scripts/apply_template.py article.md -t policy-whitepaper -o out.html
+```
+
+浏览器打开 `out.html`，全选复制，粘进公众号编辑器。
+
+| 模版 | 适合 |
+| --- | --- |
+| `policy-whitepaper` | 政策解读、调研报告、医保社保、机关单位汇报 |
+| `tech-deepdive` | 技术教程、源码分析、架构设计、踩坑记录 |
+
+按文章题材推荐模版，别问用户"你想要什么风格"——他多半也不知道，直接给建议再让他换。加模版的方法见 [`templates/README.md`](templates/README.md)。
+
+加 `--standalone` 会套一层模拟公众号宽度的预览卡片，**仅用于浏览器查看，不要复制它**。
+
+> 浏览器预览和公众号里的实际效果有差异（字体回退、深色模式处理）。要提醒用户在后台真的粘一次，用手机看一遍。
+
+## 发布
+
 - 素材转换：[file2md](https://github.com/mxx1111/file2md) —— PDF / Word / Excel 转 Markdown，纯前端本地处理，文件不上传
+- 另一种排版路径：[mdlook](https://github.com/mxx1111/mdlook) —— Mac 本地的 Markdown 排版与公众号复制工具，主题更多
 - 发布：如果用户装了公众号发布类 skill（如 `wechat-mp-publisher`、`wewe-rss-publish`），把体检通过的 Markdown 交给它；没装就给手动发布步骤
 
 ## 使用时的注意
