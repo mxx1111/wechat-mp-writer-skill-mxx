@@ -157,3 +157,29 @@ git clone https://github.com/mxx1111/wechat-mp-writer-skill-mxx.git ~/.openclaw/
 ## 开源协议
 
 MIT
+
+## 平台限制规则陈旧度检查
+
+`references/platform-limits.json` 中的数值会随微信官方策略变动。为防止因数值过时而误拦截合法排版，提供了陈旧度检查脚本：
+
+```bash
+# 默认检查（超过 180 天未核验即提示）
+python3 scripts/check_staleness.py
+
+# 输出 JSON 格式报告
+python3 scripts/check_staleness.py --json
+
+# 指定自定义阈值天数（如 90 天）
+python3 scripts/check_staleness.py --threshold 90
+
+# 若存在 enforce=true 的过期项则返回非 0 退出码
+python3 scripts/check_staleness.py --fail-enforced
+```
+
+### 如何更新平台限制数值
+
+1. 打开 [`references/platform-limits.json`](references/platform-limits.json)
+2. 对照各项给出的 `source` 或 `verifyAgainst`（微信官方公众平台开发者文档）核实数值
+3. 修改对应的 `value`、`note`，并将 `lastVerified` 更新为当前核对日期（格式 `YYYY-MM-DD`）
+4. 若是全文件整体核对，一并更新顶层的 `lastVerified`
+5. 运行 `python3 scripts/check_staleness.py` 确保所有项目均处于有效期内

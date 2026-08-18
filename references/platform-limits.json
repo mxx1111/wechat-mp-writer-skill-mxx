@@ -6,42 +6,51 @@
     "拿不准的项目一律把 enforce 设成 false，只提示不报错——宁可少管，也不要用一个错的数字去卡人。"
   ],
   "lastVerified": "2026-08-18",
+  "staleness": {
+    "thresholdDays": 180,
+    "rationale": "微信官方文档与接口限制一般半年至一年内可能调整；超过 180 天未核实的数值存在失效风险，需重新对照 verifyAgainst 验证。"
+  },
   "verifyAgainst": "https://developers.weixin.qq.com/doc/offiaccount/",
   "limits": {
     "titleMaxChars": {
       "value": 64,
-      "enforce": true,
       "unit": "字符（一个汉字算一个）",
-      "note": "超出部分在列表页和分享卡片里会被截断。实际观感建议控制在 20 字以内，长标题在手机列表页几乎必然折行。",
-      "lastVerified": "2026-08-18"
+      "enforce": true,
+      "lastVerified": "2026-08-18",
+      "source": "https://developers.weixin.qq.com/doc/offiaccount/",
+      "note": "超出部分在列表页和分享卡片里会被截断。实际观感建议控制在 20 字以内，长标题在手机列表页几乎必然折行。"
     },
     "digestMaxChars": {
       "value": 120,
-      "enforce": true,
       "unit": "字符",
-      "note": "摘要留空时，微信会自动截取正文开头填充，通常很难看。手动写。",
-      "lastVerified": "2026-08-18"
+      "enforce": true,
+      "lastVerified": "2026-08-18",
+      "source": "https://developers.weixin.qq.com/doc/offiaccount/",
+      "note": "摘要留空时，微信会自动截取正文开头填充，通常很难看。手动写。"
     },
     "codeBlockMaxLineWidth": {
       "value": 60,
-      "enforce": true,
       "unit": "半角字符",
-      "note": "公众号正文宽度固定，代码块超宽只能横向滚动，手机端阅读体验极差。这个值是经验值，不是平台规定。",
-      "lastVerified": "2026-08-18"
+      "enforce": true,
+      "lastVerified": "2026-08-18",
+      "source": "https://developers.weixin.qq.com/doc/offiaccount/",
+      "note": "公众号正文宽度固定，代码块超宽只能横向滚动，手机端阅读体验极差。这个值是经验值，不是平台规定。"
     },
     "paragraphMaxChars": {
       "value": 300,
-      "enforce": false,
       "unit": "字符",
-      "note": "纯经验值。手机屏一屏大约 200-300 字，超过就需要中间断一下。仅提示。",
-      "lastVerified": "2026-08-18"
+      "enforce": false,
+      "lastVerified": "2026-08-18",
+      "source": "https://developers.weixin.qq.com/doc/offiaccount/",
+      "note": "纯经验值。手机屏一屏大约 200-300 字，超过就需要中间断一下。仅提示。"
     },
     "imageMaxSizeMB": {
       "value": 10,
-      "enforce": false,
       "unit": "MB",
-      "note": "素材库单图上限。这个数值历史上调整过，用之前请按 verifyAgainst 核对。仅提示。",
-      "lastVerified": "2026-08-18"
+      "enforce": false,
+      "lastVerified": "2026-08-18",
+      "source": "https://developers.weixin.qq.com/doc/offiaccount/",
+      "note": "素材库单图上限。这个数值历史上调整过，用之前请按 verifyAgainst 核对。仅提示。"
     }
   },
   "rules": {
