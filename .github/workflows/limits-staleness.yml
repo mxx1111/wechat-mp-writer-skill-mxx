@@ -1,0 +1,44 @@
+name: Limits staleness
+
+on:
+  schedule:
+    - cron: "0 1 * * 1"
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "references/platform-limits.json"
+      - "scripts/check_limits_stale.py"
+      - ".github/workflows/limits-staleness.yml"
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check platform limit verification dates
+        id: stale
+        continue-on-error: true
+        run: |
+          python3 scripts/check_limits_stale.py --json > limits-staleness.json
+          cat limits-staleness.json
+          python3 scripts/check_limits_stale.py
+      - name: Open or update scheduled alert issue
+        if: github.event_name == 'schedule' && steps.stale.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          body="$(cat limits-staleness.json)"
+          existing="$(gh issue list --repo "$REPO" --state open --search 'Platform limits need re-verification in:title' --json number --jq '.[0].number // empty')"
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --repo "$REPO" --body "Scheduled staleness check is still failing:\n\n\`\`\`json\n$body\n\`\`\`"
+          else
+            gh issue create --repo "$REPO" --title "Platform limits need re-verification" --body "Scheduled staleness check found stale or malformed lastVerified entries.\n\n\`\`\`json\n$body\n\`\`\`"
+          fi
+      - name: Fail if enforced stale limits exist
+        if: steps.stale.outcome == 'failure'
+        run: exit 1

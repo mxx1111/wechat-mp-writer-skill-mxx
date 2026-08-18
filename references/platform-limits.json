@@ -57,5 +57,9 @@
       "enforce": false,
       "note": "公众号不渲染 alt，但 alt 是写作时给自己看的图注草稿，建议保留。仅提示。"
     }
+  },
+  "staleness": {
+    "thresholdDays": 180,
+    "rationale": "微信公众平台限制可能随账号类型、认证状态和后台版本变化。半年提醒一次，避免 scripts/check_mp.py 用过期数值阻塞发布。enforce=true 的限制更危险，因为它会直接拦截稿件。"
   }
 }

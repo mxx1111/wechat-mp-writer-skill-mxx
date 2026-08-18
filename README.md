@@ -77,6 +77,15 @@ digest: 摘要写在这
 
 **数值限制不写死在代码里。** 全部集中在 [`references/platform-limits.json`](references/platform-limits.json)，每项带 `lastVerified` 和来源。微信的限制会变，改配置就行；拿不准的项目 `enforce` 设为 `false`，只提示不报错——宁可少管，也不要用一个过期的数字去卡人。
 
+核对日期也要体检：
+
+```bash
+python3 scripts/check_limits_stale.py
+python3 scripts/check_limits_stale.py --json
+```
+
+阈值写在 `references/platform-limits.json` 的 `staleness.thresholdDays`，不是脚本里。默认 180 天：微信公众号限制会变，但纯日历导致 CI 长期红灯也会训练人忽略它，所以脚本只把 `enforce: true` 的过期限制当成 error；只提示的限制和文件级过期先报 warning。更新某个限制时，只改对应 `value` / `source` / `lastVerified`，不要为了消除提示批量刷新没核对过的日期。
+
 ## 流水线
 
 ```
