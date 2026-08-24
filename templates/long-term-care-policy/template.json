@@ -1,0 +1,57 @@
+{
+  "id": "long-term-care-policy",
+  "name": "长期照护·政策简报",
+  "description": "照护绿、医政蓝与暖棕强调，信息层级清楚，适合长期护理保险、养老服务、医保政策和照护项目复盘。比白皮书模版更轻、更适合把资格、待遇和办理口径讲明白。",
+  "bestFor": ["长期护理保险", "养老服务", "医保政策", "照护项目复盘", "服务指南"],
+  "palette": {
+    "paper": "#F7FAF8",
+    "ink": "#18313A",
+    "primary": "#176B63",
+    "secondary": "#1E4652",
+    "accent": "#A65D12",
+    "muted": "#52666D",
+    "soft": "#EAF3EF",
+    "rule": "#D8E4DF"
+  },
+  "notes": [
+    "正文 #18313A、主色 #176B63、辅助文字 #52666D 在纸面色 #F7FAF8 上的对比度分别约为 13.0:1、6.0:1、5.7:1，均满足 WCAG AA 正文标准。",
+    "暖棕 #A65D12 只承担风险、办理提醒等强调语义，在纸面色上的对比度约为 4.8:1。",
+    "标题用细边框和留白划分层级，不依赖大面积背景；表头使用深色底，方便读者快速扫描资格、待遇和办理口径。"
+  ],
+  "styles": {
+    "body": "background:#F7FAF8;color:#18313A;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;font-size:16px;line-height:1.88;letter-spacing:.3px;padding:26px 20px;",
+
+    "h2": "margin:38px 0 18px;padding:9px 0 9px 13px;border-left:4px solid #176B63;border-bottom:1px solid #D8E4DF;color:#1E4652;font-size:20px;font-weight:700;line-height:1.45;letter-spacing:.6px;",
+    "h3": "margin:28px 0 14px;padding-left:11px;border-left:2px solid #A65D12;color:#176B63;font-size:17px;font-weight:700;line-height:1.55;",
+    "h4": "margin:22px 0 12px;color:#52666D;font-size:16px;font-weight:700;line-height:1.6;",
+
+    "p": "margin:0 0 19px;font-size:16px;line-height:1.88;color:#18313A;",
+    "strong": "font-weight:700;color:#A65D12;",
+    "em": "font-style:normal;color:#52666D;border-bottom:1px solid #9FB9AE;padding-bottom:1px;",
+
+    "code_inline": "font-family:Menlo,Consolas,monospace;font-size:14px;background:#EAF3EF;color:#1E4652;padding:2px 6px;border-radius:2px;",
+    "code_block": "margin:0 0 22px;padding:15px 16px;background:#1E4652;border-left:3px solid #A65D12;overflow-x:auto;",
+    "code_block_text": "font-family:Menlo,Consolas,monospace;font-size:13px;line-height:1.65;color:#F7FAF8;white-space:pre;",
+
+    "blockquote": "margin:0 0 22px;padding:15px 17px;background:#EAF3EF;border-left:3px solid #176B63;",
+    "blockquote_text": "margin:0;font-size:15px;line-height:1.82;color:#1E4652;",
+
+    "ul": "margin:0 0 20px;padding-left:22px;",
+    "ol": "margin:0 0 20px;padding-left:22px;",
+    "li": "margin:0 0 9px;font-size:16px;line-height:1.82;color:#18313A;",
+
+    "table": "width:100%;margin:0 0 24px;border-collapse:collapse;font-size:14px;",
+    "tr": "",
+    "th": "padding:10px 11px;background:#1E4652;color:#FFFFFF;font-weight:700;text-align:left;border:1px solid #1E4652;line-height:1.55;",
+    "td": "padding:10px 11px;border:1px solid #C9DAD3;color:#18313A;line-height:1.7;vertical-align:top;",
+
+    "hr": "margin:32px auto;width:72%;border:0;border-top:1px solid #D8E4DF;",
+
+    "img": "max-width:100%;height:auto;display:block;margin:0 auto;border:1px solid #D8E4DF;",
+    "figure": "margin:0 0 23px;",
+    "figcaption": "display:block;margin-top:9px;text-align:center;font-size:13px;color:#52666D;letter-spacing:.3px;",
+
+    "link": "color:#176B63;font-weight:700;",
+    "link_url": "color:#52666D;font-size:13px;"
+  }
+}

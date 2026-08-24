@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/mxx1111/wechat-mp-writer-skill-mxx/main/references/template.schema.json",
+  "title": "微信公众号内联样式模版",
+  "description": "wechat-mp-writer 的 template.json 格式。字段与 styles 键同时供文档和内置校验器使用。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "name",
+    "description",
+    "bestFor",
+    "palette",
+    "notes",
+    "styles"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1
+    },
+    "bestFor": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "palette": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "styles": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "body"
+      ],
+      "properties": {
+        "body": { "$ref": "#/$defs/cssDeclarations" },
+        "h2": { "$ref": "#/$defs/cssDeclarations" },
+        "h3": { "$ref": "#/$defs/cssDeclarations" },
+        "h4": { "$ref": "#/$defs/cssDeclarations" },
+        "p": { "$ref": "#/$defs/cssDeclarations" },
+        "strong": { "$ref": "#/$defs/cssDeclarations" },
+        "em": { "$ref": "#/$defs/cssDeclarations" },
+        "code_inline": { "$ref": "#/$defs/cssDeclarations" },
+        "code_block": { "$ref": "#/$defs/cssDeclarations" },
+        "code_block_text": { "$ref": "#/$defs/cssDeclarations" },
+        "blockquote": { "$ref": "#/$defs/cssDeclarations" },
+        "blockquote_text": { "$ref": "#/$defs/cssDeclarations" },
+        "ul": { "$ref": "#/$defs/cssDeclarations" },
+        "ol": { "$ref": "#/$defs/cssDeclarations" },
+        "li": { "$ref": "#/$defs/cssDeclarations" },
+        "table": { "$ref": "#/$defs/cssDeclarations" },
+        "tr": { "$ref": "#/$defs/cssDeclarations" },
+        "th": { "$ref": "#/$defs/cssDeclarations" },
+        "td": { "$ref": "#/$defs/cssDeclarations" },
+        "hr": { "$ref": "#/$defs/cssDeclarations" },
+        "img": { "$ref": "#/$defs/cssDeclarations" },
+        "figure": { "$ref": "#/$defs/cssDeclarations" },
+        "figcaption": { "$ref": "#/$defs/cssDeclarations" },
+        "link": { "$ref": "#/$defs/cssDeclarations" },
+        "link_url": { "$ref": "#/$defs/cssDeclarations" }
+      }
+    }
+  },
+  "$defs": {
+    "cssDeclarations": {
+      "type": "string",
+      "description": "只含内联 CSS 声明，不含选择器、花括号或 style 标签。"
+    }
+  }
+}

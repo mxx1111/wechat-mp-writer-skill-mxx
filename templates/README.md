@@ -11,6 +11,7 @@
 | id | 名称 | 适合 |
 | --- | --- | --- |
 | [`policy-whitepaper`](policy-whitepaper/) | 政策解读·白皮书 | 政策解读、调研报告、医保社保、机关单位汇报 |
+| [`long-term-care-policy`](long-term-care-policy/) | 长期照护·政策简报 | 长期护理保险、养老服务、医保政策、照护项目复盘 |
 | [`tech-deepdive`](tech-deepdive/) | 技术干货 | 技术教程、源码分析、架构设计、踩坑记录 |
 
 ## 用法
@@ -35,7 +36,9 @@ templates/你的模版id/
   preview.png      建议，README 里展示
 ```
 
-`template.json` 的结构：
+[`../references/template.schema.json`](../references/template.schema.json) 是 `template.json` 字段、必填项和 `styles` 键的唯一规范来源；统一 CLI 会直接读取它，Schema 损坏或与目录不一致时 `validate-template` 和 `doctor` 都会报错。
+
+最小结构：
 
 ```json
 {
@@ -53,22 +56,7 @@ templates/你的模版id/
 }
 ```
 
-`styles` 的每个键对应一种元素，值是 CSS 声明串（不带选择器和花括号）。支持的键：
-
-```
-body
-h2  h3  h4
-p  strong  em
-code_inline  code_block  code_block_text
-blockquote  blockquote_text
-ul  ol  li
-table  tr  th  td
-hr
-img  figure  figcaption
-link  link_url
-```
-
-`body` 是必需的正文容器样式；其余键可以省略，缺少时元素本身照常输出，只是不带对应内联样式。未知键会被校验器视为拼写错误，因为渲染器不会使用它。
+`styles` 的每个键对应一种元素，值是 CSS 声明串（不带选择器和花括号）。`body` 是必需的正文容器样式；标题、正文、代码、引用、列表、表格、图片和链接等可用键见 Schema 的 `properties.styles.properties`。其余键可以省略，缺少时元素本身照常输出，只是不带对应内联样式。未知键会被校验器视为拼写错误，因为渲染器不会使用它。
 
 新增或修改模版后先运行：
 

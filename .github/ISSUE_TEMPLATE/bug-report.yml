@@ -1,0 +1,65 @@
+name: Bug 报告
+description: 报告体检、渲染、模版校验或命令行行为异常
+title: "[Bug] "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢反馈。请先删除令牌、Cookie、内部地址和真实个人信息；能复现问题的稿件请改成最小匿名示例。
+  - type: dropdown
+    id: area
+    attributes:
+      label: 问题范围
+      options:
+        - 发布前体检
+        - Markdown 渲染
+        - 排版模版
+        - validate-template / doctor
+        - 文档或安装
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: 版本或提交
+      description: 例如 v2.1.0 或 git rev-parse --short HEAD 的结果
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: 环境
+      description: 操作系统与 python3 --version
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: 复现步骤
+      description: 请提供最小命令和已经匿名化的输入
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 预期行为
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: 实际行为
+      description: 可以粘贴已脱敏的输出；不要粘贴密钥或个人资料
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: 提交前确认
+      options:
+        - label: 我已经删除凭据、Cookie、内部地址和真实个人信息
+          required: true
+        - label: 我已经搜索过现有 Issue
+          required: true

@@ -1,0 +1,39 @@
+name: 模版建议
+description: 建议一种明确题材和阅读场景的新模版
+title: "[Template] "
+labels:
+  - enhancement
+body:
+  - type: input
+    id: topic
+    attributes:
+      label: 题材
+      description: 例如病例科普、产品发布、课程笔记；不要只写“好看”
+    validations:
+      required: true
+  - type: textarea
+    id: reader
+    attributes:
+      label: 读者与阅读任务
+      description: 谁会读、需要快速找到什么信息
+    validations:
+      required: true
+  - type: textarea
+    id: structure
+    attributes:
+      label: 常见内容结构
+      description: 会用到哪些标题、表格、引用、代码或图片
+    validations:
+      required: true
+  - type: textarea
+    id: references
+    attributes:
+      label: 可公开参考
+      description: 可附公开页面或已匿名化截图；不要上传内部材料或个人信息
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: 提交前确认
+      options:
+        - label: 参考材料可以公开，且不含凭据或个人信息
+          required: true

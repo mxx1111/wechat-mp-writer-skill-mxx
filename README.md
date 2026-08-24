@@ -8,10 +8,10 @@
 
 ## 模版
 
-| 政策解读·白皮书 | 技术干货 |
-| --- | --- |
-| <img src="templates/policy-whitepaper/preview.png" width="380"> | <img src="templates/tech-deepdive/preview.png" width="380"> |
-| 米白纸面、深红与金、宋体正文。政策解读、调研报告、医保社保、机关单位汇报 | 白底无衬线、深色代码块。技术教程、源码分析、架构设计、踩坑记录 |
+| 政策解读·白皮书 | 长期照护·政策简报 | 技术干货 |
+| --- | --- | --- |
+| <img src="templates/policy-whitepaper/preview.png" width="250"> | <img src="templates/long-term-care-policy/preview.png" width="250"> | <img src="templates/tech-deepdive/preview.png" width="250"> |
+| 米白纸面、深红与金。政策解读、调研报告、机关材料 | 照护绿、医政蓝与暖棕。长护险、养老服务、医保政策 | 白底无衬线、深色代码块。技术教程、源码分析、架构设计 |
 
 ```bash
 python3 scripts/wechat_mp.py build article.md -t policy-whitepaper -o out.html
@@ -21,7 +21,7 @@ python3 scripts/wechat_mp.py build article.md -t policy-whitepaper -o out.html
 
 **为什么不能用普通的 Markdown 转 HTML**：公众号编辑器会剥掉 `<style>` 标签和所有 `class`，只保留元素上的 `style="..."`。所以样式必须在生成时逐个标签编译进去，外链 CSS 和 class 选择器一律无效。
 
-市面上的公众号模版基本都是渐变加圆角的互联网风。**政策解读、医保、机关材料这一类是空白**，第一个模版就是补这个。
+市面上的公众号模版基本都是渐变加圆角的互联网风。这里优先补政策解读、长期照护和技术长文这些需要清晰信息层级的题材。
 
 加模版的方法见 [`templates/README.md`](templates/README.md)，一个目录加一个 `template.json` 就行。
 
@@ -122,6 +122,7 @@ digest: 摘要写在这
 | [`scripts/check_mp.py`](scripts/check_mp.py) | 兼容入口：发布前体检 |
 | [`references/wechat-platform.md`](references/wechat-platform.md) | 平台硬约束：链接、标题、封面裁剪、代码块、发布节奏、原创声明 |
 | [`references/platform-limits.json`](references/platform-limits.json) | 数值限制，带核对日期 |
+| [`references/template.schema.json`](references/template.schema.json) | `template.json` 的字段与样式键规范 |
 | [`references/image-guide.md`](references/image-guide.md) | 配图尺寸、类型选择、免费素材、AI 提示词 |
 | [`references/humanize-guide.md`](references/humanize-guide.md) | 去 AI 味的**反面清单**，以及公众号特有的部分 |
 
@@ -161,7 +162,9 @@ python3 scripts/wechat_mp.py build tests/fixtures/valid.md \
   -t policy-whitepaper -o /tmp/wechat-mp-output.html
 ```
 
-GitHub Actions 会在 Python 3.9、3.11 和 3.13 上执行同一套门禁。
+GitHub Actions 会在 Python 3.9、3.11 和 3.13 上执行同一套门禁，并用校验过下载包的 Gitleaks 扫描完整 Git 历史。GitHub Secret Scanning Push Protection 也已启用。
+
+贡献新模版、规则或修复前，请先看 [`CONTRIBUTING.md`](CONTRIBUTING.md)。
 
 ## 配套工具
 
@@ -182,6 +185,10 @@ GitHub Actions 会在 Python 3.9、3.11 和 3.13 上执行同一套门禁。
 
 ### 未发布
 
+- 暂无
+
+### v2.1.0 — 2026-08-24
+
 - 新增统一 CLI：`check`、`render`、`build`、`validate-template`、`doctor`
 - `build` 将发布前体检与排版串成受门禁保护的单命令流程，体检失败时不写 HTML
 - 新增模版结构校验与本地环境诊断，并接入多版本 CI
@@ -189,6 +196,9 @@ GitHub Actions 会在 Python 3.9、3.11 和 3.13 上执行同一套门禁。
 - 启用本地图片大小提示，并将代码行宽等经验型规则明确为非阻断提示
 - push / pull request 会阻断已核实但过期的强制规则；定时告警只使用仓库已有标签
 - 为上述规则补充回归测试
+- 新增 `long-term-care-policy` 长期照护政策简报模版、示例和实渲染预览
+- 新增模版 JSON Schema，校验器和 `doctor` 从同一份规范读取必填字段与样式键
+- 新增贡献指南、Issue / PR 模版与完整 Git 历史敏感信息扫描
 
 ### v2.0.0
 

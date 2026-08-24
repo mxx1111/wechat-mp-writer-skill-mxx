@@ -1,14 +1,42 @@
 from __future__ import annotations
 
 import json
+import sys
 import tempfile
 import unittest
 from pathlib import Path
 
-from support import FIXTURES, run_script
+from support import FIXTURES, ROOT, load_script, run_script
 
 
 class UnifiedCliTests(unittest.TestCase):
+    def test_template_schema_is_the_validator_contract(self):
+        schema = json.loads(
+            (ROOT / "references" / "template.schema.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        scripts_path = str(ROOT / "scripts")
+        sys.path.insert(0, scripts_path)
+        try:
+            contract = load_script("wechat_mp").template_schema_contract()
+        finally:
+            sys.path.remove(scripts_path)
+
+        self.assertEqual(set(schema["required"]), set(contract.required_fields))
+        self.assertEqual(
+            set(schema["properties"]),
+            set(contract.root_fields),
+        )
+        self.assertEqual(
+            set(schema["properties"]["styles"]["properties"]),
+            set(contract.style_keys),
+        )
+        self.assertEqual(
+            set(schema["properties"]["styles"]["required"]),
+            set(contract.required_style_keys),
+        )
+
     def test_help_lists_all_pipeline_commands(self):
         result = run_script("wechat_mp", "--help")
 
@@ -247,6 +275,7 @@ class UnifiedCliTests(unittest.TestCase):
                         "palette": {},
                         "notes": [],
                         "styles": {"unknown-style": "color:red;"},
+                        "unexpected": "not in the schema",
                     }
                 ),
                 encoding="utf-8",
@@ -268,6 +297,7 @@ class UnifiedCliTests(unittest.TestCase):
         }
         self.assertIn("id", fields)
         self.assertIn("styles.body", fields)
+        self.assertIn("unexpected", fields)
 
     def test_validate_template_missing_target_is_an_input_error(self):
         result = run_script(
@@ -301,6 +331,7 @@ class UnifiedCliTests(unittest.TestCase):
         self.assertEqual(0, payload["errors"])
         names = {check["name"] for check in payload["checks"]}
         self.assertIn("python", names)
+        self.assertIn("template-schema", names)
         self.assertIn("platform-limits", names)
         self.assertIn("templates", names)
 

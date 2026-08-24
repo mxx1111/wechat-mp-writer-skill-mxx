@@ -25,39 +25,11 @@ else:
 
 ROOT = Path(__file__).resolve().parent.parent
 TEMPLATE_DIR = ROOT / "templates"
+TEMPLATE_SCHEMA_FILE = ROOT / "references" / "template.schema.json"
 
 ERROR = "error"
 WARNING = "warning"
 INFO = "info"
-
-SUPPORTED_STYLE_KEYS = {
-    "body",
-    "h2",
-    "h3",
-    "h4",
-    "p",
-    "strong",
-    "em",
-    "code_inline",
-    "code_block",
-    "code_block_text",
-    "blockquote",
-    "blockquote_text",
-    "ul",
-    "ol",
-    "li",
-    "table",
-    "tr",
-    "th",
-    "td",
-    "hr",
-    "img",
-    "figure",
-    "figcaption",
-    "link",
-    "link_url",
-}
-
 
 class CliInputError(Exception):
     """用户输入、文件或配置不可用。"""
@@ -82,6 +54,68 @@ class DoctorCheck:
     level: str
     name: str
     message: str
+
+
+@dataclass(frozen=True)
+class TemplateSchemaContract:
+    required_fields: frozenset[str]
+    root_fields: frozenset[str]
+    required_style_keys: frozenset[str]
+    style_keys: frozenset[str]
+
+
+def load_template_schema() -> dict:
+    try:
+        schema = json.loads(TEMPLATE_SCHEMA_FILE.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        raise CliInputError(f"模版 Schema 读取失败：{exc}") from exc
+    if not isinstance(schema, dict):
+        raise CliInputError("模版 Schema 根节点必须是对象")
+    return schema
+
+
+def string_set(value: object, description: str) -> frozenset[str]:
+    if not isinstance(value, list) or not value or not all(
+        isinstance(item, str) and item for item in value
+    ):
+        raise CliInputError(f"模版 Schema 的 {description} 必须是非空字符串数组")
+    return frozenset(value)
+
+
+def object_keys(value: object, description: str) -> frozenset[str]:
+    if not isinstance(value, dict) or not value or not all(
+        isinstance(key, str) and key for key in value
+    ):
+        raise CliInputError(f"模版 Schema 的 {description} 必须是非空对象")
+    return frozenset(value)
+
+
+def template_schema_contract() -> TemplateSchemaContract:
+    schema = load_template_schema()
+    properties = schema.get("properties")
+    root_fields = object_keys(properties, "properties")
+    required_fields = string_set(schema.get("required"), "required")
+    if not required_fields <= root_fields:
+        raise CliInputError("模版 Schema 的 required 包含未声明字段")
+
+    assert isinstance(properties, dict)
+    styles_schema = properties.get("styles")
+    if not isinstance(styles_schema, dict):
+        raise CliInputError("模版 Schema 缺少 styles 定义")
+    style_keys = object_keys(styles_schema.get("properties"), "styles.properties")
+    required_style_keys = string_set(
+        styles_schema.get("required"),
+        "styles.required",
+    )
+    if not required_style_keys <= style_keys:
+        raise CliInputError("模版 Schema 的 styles.required 包含未声明样式")
+
+    return TemplateSchemaContract(
+        required_fields=required_fields,
+        root_fields=root_fields,
+        required_style_keys=required_style_keys,
+        style_keys=style_keys,
+    )
 
 
 def require_article(path: Path) -> None:
@@ -204,11 +238,32 @@ def validate_template_dir(template_dir: Path) -> TemplateResult:
         findings.append(TemplateFinding(ERROR, "template.json", "根节点必须是对象"))
         return TemplateResult(template_name, str(template_dir), findings)
 
-    template_id = validate_nonempty_string(data, "id", findings)
-    validate_nonempty_string(data, "name", findings)
-    validate_nonempty_string(data, "description", findings)
-    validate_string_list(data, "bestFor", findings, require_items=True)
-    validate_string_list(data, "notes", findings, require_items=False)
+    try:
+        contract = template_schema_contract()
+    except CliInputError as exc:
+        findings.append(TemplateFinding(
+            ERROR,
+            "references/template.schema.json",
+            str(exc),
+        ))
+        return TemplateResult(template_name, str(template_dir), findings)
+
+    for field in sorted(contract.required_fields - data.keys()):
+        findings.append(TemplateFinding(ERROR, field, "缺少必填字段"))
+    for field in sorted(data.keys() - contract.root_fields):
+        findings.append(TemplateFinding(ERROR, field, "Schema 未声明此字段"))
+
+    template_id = (
+        validate_nonempty_string(data, "id", findings)
+        if "id" in data else None
+    )
+    for field in ("name", "description"):
+        if field in data:
+            validate_nonempty_string(data, field, findings)
+    if "bestFor" in data:
+        validate_string_list(data, "bestFor", findings, require_items=True)
+    if "notes" in data:
+        validate_string_list(data, "notes", findings, require_items=False)
 
     if template_id:
         if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", template_id):
@@ -224,27 +279,35 @@ def validate_template_dir(template_dir: Path) -> TemplateResult:
                 f"必须与目录名 {template_dir.name!r} 一致",
             ))
 
-    palette = data.get("palette")
-    if not isinstance(palette, dict) or not palette:
-        findings.append(TemplateFinding(ERROR, "palette", "必须是非空颜色对象"))
-    elif not all(
-        isinstance(key, str) and isinstance(value, str) and value.strip()
-        for key, value in palette.items()
-    ):
-        findings.append(TemplateFinding(ERROR, "palette", "颜色名称和值必须是字符串"))
-
-    styles = data.get("styles")
-    if not isinstance(styles, dict):
-        findings.append(TemplateFinding(ERROR, "styles", "必须是样式对象"))
-    else:
-        if not isinstance(styles.get("body"), str) or not styles["body"].strip():
+    if "palette" in data:
+        palette = data["palette"]
+        if not isinstance(palette, dict) or not palette:
+            findings.append(TemplateFinding(ERROR, "palette", "必须是非空颜色对象"))
+        elif not all(
+            isinstance(key, str) and isinstance(value, str) and value.strip()
+            for key, value in palette.items()
+        ):
             findings.append(TemplateFinding(
                 ERROR,
-                "styles.body",
-                "必须提供正文容器的内联样式",
+                "palette",
+                "颜色名称和值必须是字符串",
             ))
+
+    styles = data.get("styles")
+    if "styles" not in data:
+        styles = None
+    elif not isinstance(styles, dict):
+        findings.append(TemplateFinding(ERROR, "styles", "必须是样式对象"))
+    else:
+        for key in sorted(contract.required_style_keys):
+            if not isinstance(styles.get(key), str) or not styles[key].strip():
+                findings.append(TemplateFinding(
+                    ERROR,
+                    f"styles.{key}",
+                    "必须提供非空内联样式",
+                ))
         for key, value in styles.items():
-            if key not in SUPPORTED_STYLE_KEYS:
+            if key not in contract.style_keys:
                 findings.append(TemplateFinding(
                     ERROR,
                     f"styles.{key}",
@@ -431,6 +494,7 @@ def command_doctor(args: argparse.Namespace) -> int:
         ROOT / "scripts" / "check_staleness.py",
         ROOT / "scripts" / "wechat_mp.py",
         ROOT / "references" / "platform-limits.json",
+        TEMPLATE_SCHEMA_FILE,
     )
     missing = [
         str(path.relative_to(ROOT))
@@ -445,6 +509,19 @@ def command_doctor(args: argparse.Namespace) -> int:
         ))
     else:
         checks.append(DoctorCheck(INFO, "files", "核心脚本和配置文件完整"))
+
+    try:
+        contract = template_schema_contract()
+        checks.append(DoctorCheck(
+            INFO,
+            "template-schema",
+            (
+                f"Schema 有 {len(contract.required_fields)} 个必填字段、"
+                f"{len(contract.style_keys)} 个样式键"
+            ),
+        ))
+    except CliInputError as exc:
+        checks.append(DoctorCheck(ERROR, "template-schema", str(exc)))
 
     try:
         limits = check_staleness.load_limits(check_staleness.LIMITS_FILE)
