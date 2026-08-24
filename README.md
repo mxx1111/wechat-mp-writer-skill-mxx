@@ -14,10 +14,10 @@
 | 米白纸面、深红与金、宋体正文。政策解读、调研报告、医保社保、机关单位汇报 | 白底无衬线、深色代码块。技术教程、源码分析、架构设计、踩坑记录 |
 
 ```bash
-python3 scripts/apply_template.py article.md -t policy-whitepaper -o out.html
+python3 scripts/wechat_mp.py build article.md -t policy-whitepaper -o out.html
 ```
 
-浏览器打开，全选复制，粘进公众号编辑器。
+命令会先做发布前体检；没有错误才生成 HTML。浏览器打开，全选复制，粘进公众号编辑器。
 
 **为什么不能用普通的 Markdown 转 HTML**：公众号编辑器会剥掉 `<style>` 标签和所有 `class`，只保留元素上的 `style="..."`。所以样式必须在生成时逐个标签编译进去，外链 CSS 和 class 选择器一律无效。
 
@@ -49,10 +49,33 @@ python3 scripts/apply_template.py article.md -t policy-whitepaper -o out.html
 
 本项目负责的是它们都不管的那一层：**平台约束和发布前体检**。
 
+## 统一命令行
+
+所有日常操作都从 `scripts/wechat_mp.py` 进入，只依赖 Python 标准库：
+
+```bash
+# 只体检
+python3 scripts/wechat_mp.py check article.md
+
+# 只排版
+python3 scripts/wechat_mp.py render article.md -t policy-whitepaper -o out.html
+
+# 一键体检并排版；不写 -o 时默认生成 article.html
+python3 scripts/wechat_mp.py build article.md -t policy-whitepaper
+
+# 校验全部模版，或在末尾指定模版 id / 目录 / template.json
+python3 scripts/wechat_mp.py validate-template
+
+# 离线检查 Python、核心文件、平台限制配置和模版健康度
+python3 scripts/wechat_mp.py doctor
+```
+
+`build` 遇到 error 会返回 1，且不会创建或覆盖 HTML；只有 warning 时仍会生成。`render` 和 `build` 都拒绝把输出写回原 Markdown。输入文件、模版名或配置不可用时返回 2。原有的 `check_mp.py`、`apply_template.py`、`check_staleness.py` 继续作为兼容入口。
+
 ## 发布前体检
 
 ```bash
-python3 scripts/check_mp.py article.md --title "标题" --digest "摘要"
+python3 scripts/wechat_mp.py check article.md --title "标题" --digest "摘要"
 ```
 
 ```
@@ -94,8 +117,9 @@ digest: 摘要写在这
 | --- | --- |
 | [`SKILL.md`](SKILL.md) | 流程编排 |
 | [`templates/`](templates/) | 排版模版，以及怎么加新模版 |
-| [`scripts/apply_template.py`](scripts/apply_template.py) | Markdown + 模版 → 内联样式 HTML |
-| [`scripts/check_mp.py`](scripts/check_mp.py) | 发布前体检 |
+| [`scripts/wechat_mp.py`](scripts/wechat_mp.py) | 统一 CLI：体检、排版、构建、模版校验、环境诊断 |
+| [`scripts/apply_template.py`](scripts/apply_template.py) | 兼容入口：Markdown + 模版 → 内联样式 HTML |
+| [`scripts/check_mp.py`](scripts/check_mp.py) | 兼容入口：发布前体检 |
 | [`references/wechat-platform.md`](references/wechat-platform.md) | 平台硬约束：链接、标题、封面裁剪、代码块、发布节奏、原创声明 |
 | [`references/platform-limits.json`](references/platform-limits.json) | 数值限制，带核对日期 |
 | [`references/image-guide.md`](references/image-guide.md) | 配图尺寸、类型选择、免费素材、AI 提示词 |
@@ -132,8 +156,8 @@ git clone https://github.com/mxx1111/wechat-mp-writer-skill-mxx.git ~/.openclaw/
 ```bash
 python3 -m compileall -q scripts tests
 python3 -m unittest discover -s tests -v
-python3 scripts/check_mp.py tests/fixtures/valid.md
-python3 scripts/apply_template.py tests/fixtures/valid.md \
+python3 scripts/wechat_mp.py doctor
+python3 scripts/wechat_mp.py build tests/fixtures/valid.md \
   -t policy-whitepaper -o /tmp/wechat-mp-output.html
 ```
 
@@ -158,6 +182,9 @@ GitHub Actions 会在 Python 3.9、3.11 和 3.13 上执行同一套门禁。
 
 ### 未发布
 
+- 新增统一 CLI：`check`、`render`、`build`、`validate-template`、`doctor`
+- `build` 将发布前体检与排版串成受门禁保护的单命令流程，体检失败时不写 HTML
+- 新增模版结构校验与本地环境诊断，并接入多版本 CI
 - 修复正文标题行跳过外链检查的问题
 - 启用本地图片大小提示，并将代码行宽等经验型规则明确为非阻断提示
 - push / pull request 会阻断已核实但过期的强制规则；定时告警只使用仓库已有标签

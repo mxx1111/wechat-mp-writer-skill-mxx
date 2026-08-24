@@ -16,8 +16,8 @@
 ## 用法
 
 ```bash
-python3 scripts/apply_template.py --list
-python3 scripts/apply_template.py article.md -t policy-whitepaper -o out.html
+python3 scripts/wechat_mp.py validate-template
+python3 scripts/wechat_mp.py render article.md -t policy-whitepaper -o out.html
 ```
 
 在浏览器里打开 `out.html`，全选复制，粘进公众号编辑器。
@@ -68,7 +68,15 @@ img  figure  figcaption
 link  link_url
 ```
 
-缺哪个键就不给那种元素加样式，元素本身照常输出——模版写漏一项，内容不该跟着消失。
+`body` 是必需的正文容器样式；其余键可以省略，缺少时元素本身照常输出，只是不带对应内联样式。未知键会被校验器视为拼写错误，因为渲染器不会使用它。
+
+新增或修改模版后先运行：
+
+```bash
+python3 scripts/wechat_mp.py validate-template 你的模版id
+```
+
+也可以传模版目录或 `template.json` 的路径；不传参数会校验全部模版。error 返回 1，只有“缺少建议的 sample.md / preview.png”等 warning 时返回 0。
 
 ## 做模版时的注意
 
@@ -87,7 +95,7 @@ link  link_url
 ## 生成预览图
 
 ```bash
-python3 scripts/apply_template.py templates/你的模版id/sample.md \
+python3 scripts/wechat_mp.py render templates/你的模版id/sample.md \
   -t 你的模版id --standalone -o /tmp/preview.html
 
 "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \

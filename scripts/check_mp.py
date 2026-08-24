@@ -283,6 +283,35 @@ def run(path: Path, title: str | None, digest: str | None) -> list[Finding]:
     return findings
 
 
+def print_report(path: Path, findings: list[Finding], json_output: bool = False) -> int:
+    """输出体检结果并返回与 CLI 一致的退出码。"""
+    errors = [finding for finding in findings if finding.level == ERROR]
+    warnings = [finding for finding in findings if finding.level == WARNING]
+
+    if json_output:
+        print(json.dumps({
+            "file": str(path),
+            "errors": len(errors),
+            "warnings": len(warnings),
+            "findings": [asdict(finding) for finding in findings],
+        }, ensure_ascii=False, indent=2))
+        return 1 if errors else 0
+
+    if not findings:
+        print(f"✓ {path}：没有发现问题")
+        return 0
+
+    for finding in sorted(findings, key=lambda item: (item.level != ERROR, item.line)):
+        marker = "✗" if finding.level == ERROR else "!"
+        where = f"第 {finding.line} 行" if finding.line else "整篇"
+        print(f"{marker} [{finding.check}] {where}：{finding.message}")
+
+    print(f"\n{len(errors)} 个错误，{len(warnings)} 个提示")
+    if errors:
+        print("错误会导致发布后显示异常，建议改完再发。")
+    return 1 if errors else 0
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="公众号发布前体检")
     parser.add_argument("file", type=Path, help="Markdown 文件")
@@ -296,31 +325,7 @@ def main() -> int:
         return 2
 
     findings = run(args.file, args.title, args.digest)
-    errors = [f for f in findings if f.level == ERROR]
-    warnings = [f for f in findings if f.level == WARNING]
-
-    if args.json:
-        print(json.dumps({
-            "file": str(args.file),
-            "errors": len(errors),
-            "warnings": len(warnings),
-            "findings": [asdict(f) for f in findings],
-        }, ensure_ascii=False, indent=2))
-        return 1 if errors else 0
-
-    if not findings:
-        print(f"✓ {args.file}：没有发现问题")
-        return 0
-
-    for finding in sorted(findings, key=lambda f: (f.level != ERROR, f.line)):
-        marker = "✗" if finding.level == ERROR else "!"
-        where = f"第 {finding.line} 行" if finding.line else "整篇"
-        print(f"{marker} [{finding.check}] {where}：{finding.message}")
-
-    print(f"\n{len(errors)} 个错误，{len(warnings)} 个提示")
-    if errors:
-        print("错误会导致发布后显示异常，建议改完再发。")
-    return 1 if errors else 0
+    return print_report(args.file, findings, args.json)
 
 
 if __name__ == "__main__":

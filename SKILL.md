@@ -36,7 +36,7 @@ description: 微信公众号发布流水线与排版模版库。提供可直接�
 | --- | --- |
 | 从零写一篇 | 全流程 |
 | 已有草稿要发 | 润色 → 配图 → 体检 → 排版 |
-| 只想体检 | 直接跑 `check_mp.py` |
+| 只想体检 | 直接跑 `python3 scripts/wechat_mp.py check` |
 | 只问平台规则 | 读 `references/wechat-platform.md` 回答 |
 
 **不要默认跑全流程。** 用户说「帮我检查一下这篇」就只做体检，别顺手把文章重写了。
@@ -46,7 +46,7 @@ description: 微信公众号发布流水线与排版模版库。提供可直接�
 这是本 skill 唯一自己实现的能力，也是别处没有的。
 
 ```bash
-python3 scripts/check_mp.py article.md --title "标题" --digest "摘要"
+python3 scripts/wechat_mp.py check article.md --title "标题" --digest "摘要"
 ```
 
 标题和摘要也可以写在 Markdown 顶部的 front matter 里：
@@ -78,6 +78,12 @@ digest: 摘要写在这
 
 **体检要在发布之前做。** 公众号群发后不能修改，只能删除重发，重发会丢掉已有的阅读量和在看。
 
+体检与排版一起做时用 `build`。它只会在没有 error 时写 HTML，warning 不阻断：
+
+```bash
+python3 scripts/wechat_mp.py build article.md -t policy-whitepaper -o out.html
+```
+
 ## 平台约束
 
 完整内容见 [`references/wechat-platform.md`](references/wechat-platform.md)。最容易踩的三条：
@@ -107,8 +113,8 @@ digest: 摘要写在这
 Markdown 不能直接粘进公众号编辑器。公众号会剥掉 `<style>` 标签和所有 class，**只认元素上的内联 style**，所以样式必须在生成时编译进每一个标签。
 
 ```bash
-python3 scripts/apply_template.py --list
-python3 scripts/apply_template.py article.md -t policy-whitepaper -o out.html
+python3 scripts/wechat_mp.py validate-template
+python3 scripts/wechat_mp.py render article.md -t policy-whitepaper -o out.html
 ```
 
 浏览器打开 `out.html`，全选复制，粘进公众号编辑器。
@@ -123,6 +129,13 @@ python3 scripts/apply_template.py article.md -t policy-whitepaper -o out.html
 加 `--standalone` 会套一层模拟公众号宽度的预览卡片，**仅用于浏览器查看，不要复制它**。
 
 > 浏览器预览和公众号里的实际效果有差异（字体回退、深色模式处理）。要提醒用户在后台真的粘一次，用手机看一遍。
+
+模版或本地环境异常时先运行：
+
+```bash
+python3 scripts/wechat_mp.py validate-template
+python3 scripts/wechat_mp.py doctor
+```
 
 ## 发布
 

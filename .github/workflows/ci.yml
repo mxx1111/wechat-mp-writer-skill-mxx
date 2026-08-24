@@ -41,3 +41,12 @@ jobs:
           python scripts/apply_template.py tests/fixtures/valid.md
           --template policy-whitepaper
           --output "${{ runner.temp }}/wechat-mp-output.html"
+
+      - name: Run unified CLI doctor
+        run: python scripts/wechat_mp.py doctor
+
+      - name: Run unified build smoke test
+        run: >-
+          python scripts/wechat_mp.py build tests/fixtures/valid.md
+          --template policy-whitepaper
+          --output "${{ runner.temp }}/wechat-mp-build.html"
