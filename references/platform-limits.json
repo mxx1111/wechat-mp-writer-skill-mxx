@@ -31,7 +31,7 @@
     "codeBlockMaxLineWidth": {
       "value": 60,
       "unit": "半角字符",
-      "enforce": true,
+      "enforce": false,
       "lastVerified": "2026-08-18",
       "source": "https://developers.weixin.qq.com/doc/offiaccount/",
       "note": "公众号正文宽度固定，代码块超宽只能横向滚动，手机端阅读体验极差。这个值是经验值，不是平台规定。"

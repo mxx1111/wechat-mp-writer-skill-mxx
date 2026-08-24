@@ -31,7 +31,10 @@ jobs:
         run: |
           # 检查并输出结果到 GitHub Actions Summary
           python3 scripts/check_staleness.py --json > staleness_result.json
-          python3 scripts/check_staleness.py
+
+      - name: Enforce Verified Limits on Push and Pull Request
+        if: github.event_name == 'push' || github.event_name == 'pull_request'
+        run: python3 scripts/check_staleness.py --fail-enforced
 
       - name: Create or Update GitHub Issue on Stale Limits (Scheduled run only)
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
@@ -40,7 +43,7 @@ jobs:
           script: |
             const fs = require('fs');
             const data = JSON.parse(fs.readFileSync('staleness_result.json', 'utf8'));
-            
+
             if (data.staleCount === 0) {
               console.log('No stale limits found. Skipping notification.');
               return;
@@ -91,6 +94,6 @@ jobs:
                 repo: context.repo.repo,
                 title: title,
                 body: body,
-                labels: ['maintenance', 'documentation']
+                labels: ['documentation']
               });
             }

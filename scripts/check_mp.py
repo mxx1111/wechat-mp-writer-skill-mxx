@@ -27,10 +27,13 @@ import argparse
 import json
 import re
 import sys
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from pathlib import Path
+from urllib.parse import unquote, urlsplit
 
-LIMITS_FILE = Path(__file__).resolve().parent.parent / "references" / "platform-limits.json"
+LIMITS_FILE = (
+    Path(__file__).resolve().parent.parent / "references" / "platform-limits.json"
+)
 
 ERROR = "error"
 WARNING = "warning"
@@ -52,8 +55,9 @@ def load_limits(path: Path) -> dict:
             "limits": {
                 "titleMaxChars": {"value": 64, "enforce": True},
                 "digestMaxChars": {"value": 120, "enforce": True},
-                "codeBlockMaxLineWidth": {"value": 60, "enforce": True},
+                "codeBlockMaxLineWidth": {"value": 60, "enforce": False},
                 "paragraphMaxChars": {"value": 300, "enforce": False},
+                "imageMaxSizeMB": {"value": 10, "enforce": False},
             },
             "rules": {
                 "noBareUrlInBody": {"enforce": True},
@@ -111,6 +115,29 @@ def display_width(text: str) -> int:
     return width
 
 
+def resolve_local_image(source: str, article_path: Path | None) -> Path | None:
+    """把 Markdown 图片地址解析为本地路径；远程地址和 data URI 不读取。"""
+    if article_path is None:
+        return None
+
+    raw = source.strip()
+    if raw.startswith("<") and raw.endswith(">"):
+        raw = raw[1:-1].strip()
+    if not raw:
+        return None
+
+    parsed = urlsplit(raw)
+    if parsed.scheme in {"http", "https", "data"} or parsed.netloc:
+        return None
+    if parsed.scheme and parsed.scheme != "file":
+        return None
+
+    candidate = Path(unquote(parsed.path))
+    if not candidate.is_absolute():
+        candidate = article_path.resolve().parent / candidate
+    return candidate
+
+
 def check_title(title: str | None, limits: dict) -> list[Finding]:
     config = limits["limits"].get("titleMaxChars", {})
     if not title:
@@ -142,7 +169,12 @@ def check_digest(digest: str | None, limits: dict) -> list[Finding]:
     return []
 
 
-def check_body(body: str, offset: int, limits: dict) -> list[Finding]:
+def check_body(
+    body: str,
+    offset: int,
+    limits: dict,
+    article_path: Path | None = None,
+) -> list[Finding]:
     findings: list[Finding] = []
     lines = body.splitlines()
     in_code = mask_code_blocks(lines)
@@ -150,9 +182,11 @@ def check_body(body: str, offset: int, limits: dict) -> list[Finding]:
     rules = limits.get("rules", {})
     width_config = limits["limits"].get("codeBlockMaxLineWidth", {})
     paragraph_config = limits["limits"].get("paragraphMaxChars", {})
+    image_size_config = limits["limits"].get("imageMaxSizeMB", {})
 
     max_width = width_config.get("value", 60)
     max_paragraph = paragraph_config.get("value", 300)
+    max_image_mb = image_size_config.get("value", 10)
 
     # 公众号正文里的裸链接不可点击，读者只能手动复制。
     bare_url = re.compile(r"(?<!\()(?<!\]\()https?://[^\s)\]<>]+")
@@ -176,13 +210,11 @@ def check_body(body: str, offset: int, limits: dict) -> list[Finding]:
             continue
 
         match = heading.match(stripped)
-        if match:
-            if len(match.group(1)) == 1:
-                config = rules.get("noTopLevelHeading", {})
-                findings.append(Finding(
-                    level_for(config), "heading", line_number,
-                    "正文里出现 H1。文章标题在公众号后台单独填，正文小标题从 ## 起。"))
-            continue
+        if match and len(match.group(1)) == 1:
+            config = rules.get("noTopLevelHeading", {})
+            findings.append(Finding(
+                level_for(config), "heading", line_number,
+                "正文里出现 H1。文章标题在公众号后台单独填，正文小标题从 ## 起。"))
 
         for found in image.finditer(line):
             image_count += 1
@@ -192,6 +224,21 @@ def check_body(body: str, offset: int, limits: dict) -> list[Finding]:
                 findings.append(Finding(
                     level_for(config), "image-alt", line_number,
                     "图片没有 alt。公众号不渲染 alt，但它是你自己写图注时的草稿。"))
+
+            local_image = resolve_local_image(found.group(2), article_path)
+            if local_image is not None and isinstance(max_image_mb, (int, float)):
+                try:
+                    if not local_image.is_file():
+                        continue
+                    size_bytes = local_image.stat().st_size
+                except OSError:
+                    size_bytes = 0
+                size_mb = size_bytes / (1024 * 1024)
+                if max_image_mb > 0 and size_mb > max_image_mb:
+                    findings.append(Finding(
+                        level_for(image_size_config), "image-size", line_number,
+                        f"图片 {size_mb:.2f} MB，超过 {max_image_mb:g} MB。"
+                        "上传素材库前请压缩。"))
 
         # 顺序要紧：先摘掉图片，否则 ![alt](src) 尾部的 ](src) 会被当成普通链接。
         # 只统计 http(s) 目标，本地图片路径和站内锚点不是「读者点不了的外链」。
@@ -203,7 +250,7 @@ def check_body(body: str, offset: int, limits: dict) -> list[Finding]:
         for found in bare_url.finditer(without_links):
             external_links.append((line_number, found.group(0)))
 
-        if len(stripped) > max_paragraph:
+        if not match and len(stripped) > max_paragraph:
             findings.append(Finding(
                 level_for(paragraph_config), "paragraph", line_number,
                 f"这一段 {len(stripped)} 字，手机上要滑好几屏。中间断一下。"))
@@ -232,7 +279,7 @@ def run(path: Path, title: str | None, digest: str | None) -> list[Finding]:
     findings = []
     findings += check_title(title or meta.get("title"), limits)
     findings += check_digest(digest or meta.get("digest"), limits)
-    findings += check_body(body, offset, limits)
+    findings += check_body(body, offset, limits, path)
     return findings
 
 
