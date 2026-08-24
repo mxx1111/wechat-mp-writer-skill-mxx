@@ -3,6 +3,7 @@
 **公众号排版模版 + 发布前体检。** 把 Markdown 编译成可直接粘进公众号编辑器的 HTML，并在发那一下之前把会翻车的地方查出来。
 
 [![GitHub stars](https://img.shields.io/github/stars/mxx1111/wechat-mp-writer-skill-mxx?style=flat-square)](https://github.com/mxx1111/wechat-mp-writer-skill-mxx/stargazers)
+[![CI](https://github.com/mxx1111/wechat-mp-writer-skill-mxx/actions/workflows/ci.yml/badge.svg)](https://github.com/mxx1111/wechat-mp-writer-skill-mxx/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
 
 ## 模版
@@ -121,6 +122,20 @@ git clone https://github.com/mxx1111/wechat-mp-writer-skill-mxx.git ~/.openclaw/
 ```
 
 体检脚本也可以脱离 skill 单独用，只要有 Python 3。
+
+## 测试
+
+项目只依赖 Python 标准库。本地提交前运行：
+
+```bash
+python3 -m compileall -q scripts tests
+python3 -m unittest discover -s tests -v
+python3 scripts/check_mp.py tests/fixtures/valid.md
+python3 scripts/apply_template.py tests/fixtures/valid.md \
+  -t policy-whitepaper -o /tmp/wechat-mp-output.html
+```
+
+GitHub Actions 会在 Python 3.9、3.11 和 3.13 上执行同一套门禁。
 
 ## 配套工具
 
